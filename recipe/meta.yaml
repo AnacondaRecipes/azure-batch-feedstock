@@ -1,32 +1,37 @@
 {% set name = "azure-batch" %}
-{% set version = "13.0.0" %}
+{% set version = "15.0.0b1" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/azure-batch-{{ version }}.zip
-  sha256: e9295de70404d276eda0dd2253d76397439abe5d8f18c1fca199c49b8d6ae30a
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_')}}-{{ version }}.tar.gz
+  sha256: dfbddd158ffade52193e3e4d86c996ea7236ffd2695a43734fae5e05a974e2ed
 
 build:
-  noarch: python
-  script: {{ PYTHON }} -m pip install . -vv
   number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true  # [py<38]
 
 requirements:
   host:
-    - python >=3.6
     - pip
+    - python
+    - wheel
+    - setuptools
   run:
-    - python >=3.6
-    - msrestazure >=0.4.32,<2.0.0
-    - azure-common >=1.1,<2.dev0
+    - python
+    - isodate >=0.6.1
+    - azure-core >=1.30.0
+    - typing-extensions >=4.6.0
 
+# Unable to run tests: No azure-devtools -> https://pypi.org/project/azure-devtools
 test:
   imports:
     - azure.batch
-    - azure.batch.custom
+    - azure.batch.aio
+    - azure.batch.models
   commands:
     - pip check
   requires:
@@ -36,10 +41,8 @@ about:
   home: https://github.com/Azure/azure-sdk-for-python
   summary: Microsoft Azure Batch Client Library for Python
   license: MIT
-  license_file: LICENSE.txt
-  doc_url: https://docs.microsoft.com/en-us/azure/developer/python/
+  license_file: LICENSE
+  license_family: MIT
+  description: This is the Microsoft Azure Batch Client Library.
+  doc_url: https://docs.microsoft.com/en-us/azure/developer/python
   dev_url: https://github.com/Azure/azure-sdk-for-python
-
-extra:
-  recipe-maintainers:
-    - xylar
